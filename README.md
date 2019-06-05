@@ -14,7 +14,11 @@ Alguna de las cosas que se verán en este laboratorio serán:
 
 -Cuenta de Azure DevOps, puede obtener una en [https://dev.azure.com](https://dev.azure.com)
 
--Para la ejecución de comandos puede utilizar el Azure Cloud Shell disponible en [https://shell.azure.com/](https://shell.azure.com/) una vez que inicie sesión con su subscripción de Azure. El Azure Cloud Shell tiene pre-instalado y configurado el Azure CLI para conectarse a su subscripción ded Azure así como tambien **kubectl** y **helm**
+-Para la ejecución de comandos puede utilizar el Azure Cloud Shell disponible en [https://shell.azure.com/](https://shell.azure.com/) una vez que inicie sesión con su subscripción de Azure. El Azure Cloud Shell tiene pre-instalado y configurado el Azure CLI para conectarse a su subscripción ded Azure así como tambien **kubectl** y **helm**.
 
+## Conocimientos básicos de Kubernetes
+Para este laboratorio se asume que se tiene conocimientos básicos sobre Kubernetes y sus conceptos generales.
+
+Si es nuevo en Kubernetes, puede empezar con [Kubernetes Learning Path](https://aka.ms/LearnKubernetes "Kubernetes Learning Path") y luego avanzar con los conceptos sobre [qué es y qué no es Kubernetes.](https://aka.ms/k8sLearning "qué es y qué no es Kubernetes."). Si ya tiene mas experiencia como desarrollador o administrador de Kubernetes, puede revisar la [guía de mejores prácticas en Kubernetes](https://aka.ms/aks/bestpractices "guía de mejores prácticas en Kubernetes").
 
 
