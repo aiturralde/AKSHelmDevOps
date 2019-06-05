@@ -13,7 +13,7 @@ Alguna de las cosas que se verán en este laboratorio serán:
 - Construyendo un pipeline de CI/CD utilizando Azure DevOps y Azure Container Registry
 
 ## Pre requisitos
--Subscripción de Azure. Sí no posee una, obtenga un trial: [https://azure.microsoft.com/es-es/free/](https://azure.microsoft.com/es-es/free/)
+- Subscripción de Azure. Sí no posee una, obtenga un trial: [https://azure.microsoft.com/es-es/free/](https://azure.microsoft.com/es-es/free/)
 
 - Cuenta de Azure DevOps, puede obtener una en [https://dev.azure.com](https://dev.azure.com)
 
