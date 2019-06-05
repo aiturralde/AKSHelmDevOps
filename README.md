@@ -8,7 +8,6 @@ Tabla de Contenidos
   - [Creación de un Azure Kubernetes Services](#creaci%C3%B3n-de-un-azure-kubernetes-services)
 - [Ejercicio 2: Importando el código](#ejercicio-2-importando-el-c%C3%B3digo)
 - [Ejercicio 3: Creando el Build Pipeline](#ejercicio-3-creando-el-build-pipeline)
-  - [Prerrequisito](#prerrequisito)
 
 # Introducción
 
@@ -107,7 +106,6 @@ $ kubectl create clusterrolebinding default-view --clusterrole=view --serviceacc
 
 Crearemos el Azure Build Pipeline para la aplicación **Parrot** para que sea capaz de compilar/publicar su imágen de Docker y empaquetar/publicar su chart de Helm.
 
-## Prerrequisito
 1. Es necesario crear una *Service Connection* entre Azure DevOps y nuestra suscripción de Azure. Para lo cual hay que navegar a las configuraciones de nuestro proyecto.
 
 ![ProjectSettings](images/ProjectSettings.png)
@@ -116,10 +114,33 @@ Crearemos el Azure Build Pipeline para la aplicación **Parrot** para que sea ca
 
 ![NewServiceConn](images/NewServiceConn.png)
 
-3. Acá se creará un *Service Principal Authentication*, donde definiremos el nombre de la conexión, la subscripción donde nos conectaremos y finalmente el grupo de recurso en el que se encuentra AKS. Por ejemplo:
+3. Crearemos un *Service Principal Authentication*, donde definiremos: el nombre de la conexión, la subscripción donde nos conectaremos y finalmente el grupo de recurso en el que se encuentra AKS. Por ejemplo:
 
 ![NewArmCon](images/ARMConn.png)
 
+4. En Azure DevOps, ingresamos a la opción Files --> Repos y posteriormente en el código navegamos a la carpeta *Parrot*. Finalmente presionamos en el botón *Upload file(s)*.
 
+![FileUpload](images/FileUpload.png)
 
+5. Descargamos el archivo [azure-build-pipeline.yml](/assets/azure-build-pipeline.yml "azure-build-pipeline.yml") y reemplazaremos el existente en la carpeta raíz de *Parrot*. Finalmente presionamos en el botón *Commit*.
+
+![FileUploadCommit](images/FileUploadCommit.png)
+
+> El archivo *azure-build-pipeline.yml* contiene la definición del build el cual será utilizado en los siguientes pasos. Este archivo será el encargado de descargar la imágen base de docker, inyecta la aplicación *parrot*, luego instala Helm, empaqueta el chart de Helm y luego hace deploy del resultado de esa operación al Azure Container Registry (ACS).
+
+6. En nuestro proyecto de Azure DevOps, ingresaremos al menú Pipelines --> Builds. Luego seleccionamos la opción "New pipeline".
+7. Construimos el pipeline en base a la siguiente animación:
+
+![NewBuild](images/NewBuild.gif)
+
+8. En la sección *Variables* definimos lo siguiente:
+   1. **projectName**, con el valor *parrot*
+   2. **registryName**, cuyo nombre será el definido en el paso [Creación de un Container Registry](#creaci%C3%B3n-de-un-container-registry)
+   3. **serviceConnection**, su valor es el nombre definido en las *Service Connections*.
+
+![BuildVariables](images/BuildVariables.png)
+
+9. Presionamos en el botón *Save & Queue*. Lo cual daría inicio a nuestro proceso de build.
+
+![BuildResult](images/BuildResult.png)
 </div>

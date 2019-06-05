@@ -1,0 +1,62 @@
+pool:
+  vmImage: 'Ubuntu 16.04'
+
+trigger:
+  batch: true
+  branches:
+    include: 
+    - refs/heads/*
+  paths:
+    include: 
+    - parrot/
+
+variables:
+  registryServerName: '$(registryName).azurecr.io'
+  imageName: '$(projectName)'
+  fullName: $(System.ArtifactsDirectory)/$(projectName)-$(build.buildId).tgz
+
+steps:
+- task: Docker@1
+  displayName: 'docker build'
+  inputs:
+    azureSubscriptionEndpoint: $(serviceConnection)
+    azureContainerRegistry: $(registryServerName)
+    dockerFile: $(system.defaultWorkingDirectory)/$(projectName)/Dockerfile
+    imageName: $(imageName):$(build.buildId)   
+    includeLatestTag: true
+
+- task: Docker@1
+  displayName: 'Push image'
+  inputs:
+    azureSubscriptionEndpoint: $(serviceConnection)
+    azureContainerRegistry: $(registryServerName)
+    command: 'Push an image'
+    imageName: '$(imageName):$(build.buildId)'
+ 
+- task: Docker@1
+  displayName: 'Push latest image'
+  inputs:
+    azureSubscriptionEndpoint: $(serviceConnection)
+    azureContainerRegistry: $(registryServerName)
+    command: 'Push an image'
+    imageName: '$(imageName):latest'
+
+
+- task: HelmInstaller@0
+  displayName: 'Install Helm'
+  inputs:
+    helmVersion: 2.13.0
+
+- task: HelmDeploy@0
+  inputs:
+    command: package
+    chartPath: $(system.defaultWorkingDirectory)/$(projectName)/charts/$(projectName)
+    chartVersion: $(Build.buildId)
+    arguments: '--app-version $(Build.buildId)'
+
+- task: AzureCLI@1
+  inputs:
+    azureSubscription: $(serviceConnection)
+    scriptLocation: inlineScript
+    inlineScript: az acr helm push $(fullName) -n $(registryName);
+    failOnStandardError: true
