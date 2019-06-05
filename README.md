@@ -1,5 +1,7 @@
-<div style="text-align: justify">
 # Introducción
+
+<div style="text-align: justify">
+ 
 En este laboratorio se realizará las tareas necesarias para efectuar un deployment de una aplicación de contenedores en Kubernetes en un ambiente de Azure Kubernetes Services (AKS).
 
 Alguna de las cosas que se verán en este laboratorio serán:
