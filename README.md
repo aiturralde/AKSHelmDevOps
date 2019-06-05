@@ -14,7 +14,7 @@ Alguna de las cosas que se verán en este laboratorio serán:
 
 -Cuenta de Azure DevOps, puede obtener una en [https://dev.azure.com](https://dev.azure.com)
 
--Para la ejecución de comandos puede utilizar el Azure Cloud Shell disponible en [https://shell.azure.com/](https://shell.azure.com/) una vez que inicie sesión con su subscripción de Azure. El Azure Cloud Shell tiene pre-instalado y configurado el Azure CLI para conectarse a su subscripción ded Azure así como tambien ***kubectl y ***helm
+-Para la ejecución de comandos puede utilizar el Azure Cloud Shell disponible en [https://shell.azure.com/](https://shell.azure.com/) una vez que inicie sesión con su subscripción de Azure. El Azure Cloud Shell tiene pre-instalado y configurado el Azure CLI para conectarse a su subscripción ded Azure así como tambien **kubectl** y **helm**
 
 
 
