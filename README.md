@@ -165,5 +165,3 @@ Crearemos el Azure Build Pipeline para la aplicación **Parrot** para que sea ca
 
 ![ResultadoBuild](images/ResultadoBuild.png)
 </div>
-
-https://cloudblogs.microsoft.com/opensource/2018/11/27/tutorial-azure-devops-setup-cicd-pipeline-kubernetes-docker-helm/
