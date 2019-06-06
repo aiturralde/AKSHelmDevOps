@@ -18,7 +18,7 @@ En este laboratorio se realizará las tareas necesarias para efectuar un deploym
 Alguna de las cosas que se verán en este laboratorio serán:
 
 - Deployment de Kubernetes
-- Deploy de una aplicaciíon mediante Helm
+- Deploy de una aplicación mediante Helm
 - Construyendo un pipeline de CI/CD utilizando Azure DevOps y Azure Container Registry
 
 > Este laboratorio se basa en las instrucciones indicadas en el artículo [https://cloudblogs.microsoft.com/opensource/2018/11/27/tutorial-azure-devops-setup-cicd-pipeline-kubernetes-docker-helm/](https://cloudblogs.microsoft.com/opensource/2018/11/27/tutorial-azure-devops-setup-cicd-pipeline-kubernetes-docker-helm/). Sin embargo, introduce mejoras al proceso señalado en dicho artículo.
@@ -26,7 +26,7 @@ Alguna de las cosas que se verán en este laboratorio serán:
 ## Prerrequisitos
 - Subscripción de Azure. Sí no posee una, obtenga un trial: [https://azure.microsoft.com/es-es/free/](https://azure.microsoft.com/es-es/free/)
 - Cuenta de Azure DevOps, puede obtener una en [https://dev.azure.com](https://dev.azure.com)
-- Para la ejecución de comandos puede utilizar el Azure Cloud Shell disponible en [https://shell.azure.com/](https://shell.azure.com/) una vez que inicie sesión con su subscripción de Azure. El Azure Cloud Shell tiene pre-instalado y configurado el Azure CLI para conectarse a su subscripción ded Azure así como tambien **kubectl** y **helm**.
+- Para la ejecución de comandos puede utilizar el Azure Cloud Shell disponible en [https://shell.azure.com/](https://shell.azure.com/) una vez que inicie sesión con su subscripción de Azure. El Azure Cloud Shell tiene preinstalado y configurado el Azure CLI para conectarse a su subscripción de Azure así como también **kubectl** y **helm**.
 
 ## Conocimientos básicos de Kubernetes
 Para este laboratorio se asume que se tiene conocimientos básicos sobre Kubernetes y sus conceptos generales.
@@ -34,7 +34,7 @@ Para este laboratorio se asume que se tiene conocimientos básicos sobre Kuberne
 Si es nuevo en Kubernetes, puede empezar con [Kubernetes Learning Path](https://aka.ms/LearnKubernetes "Kubernetes Learning Path") y luego avanzar con los conceptos sobre [qué es y qué no es Kubernetes.](https://aka.ms/k8sLearning "qué es y qué no es Kubernetes.") Si ya tiene mas experiencia como desarrollador o administrador de Kubernetes, puede revisar la [guía de mejores prácticas en Kubernetes](https://aka.ms/aks/bestpractices "guía de mejores prácticas en Kubernetes").
 
 ## Vistazo general de la aplicación
-Se efectuará el deployment de la aplicación **Phippy and Friends**, la cual se encuentra en el repo: [https://github.com/Azure/phippyandfriends](https://github.com/Azure/phippyandfriends). Dicho repositorio tiene unos servicios, cada uno representa un personaje individual en la "Guía para Niños sobre Kubernetes y su nuevo amigo NodeBrady". Cada servicio esta construído en lenguaje de programación diferente, con lo cual se quiere mostrar como un cluster de AKS puede ejecutar cualquier tipo de aplicación. **Parrot** está en .NET Core, **CaptainKube** en GO, **Phippy** en PHP y **NodeBrady**  en Node.js.
+Se efectuará el deployment de la aplicación **Phippy and Friends**, la cual se encuentra en el repo: [https://github.com/Azure/phippyandfriends](https://github.com/Azure/phippyandfriends). Dicho repositorio tiene unos servicios, cada uno representa un personaje individual en la "Guía para Niños sobre Kubernetes y su nuevo amigo NodeBrady". Cada servicio esta construido en lenguaje de programación diferente, con lo cual se quiere mostrar como un clúster de AKS puede ejecutar cualquier tipo de aplicación. **Parrot** está en .NET Core, **CaptainKube** en GO, **Phippy** en PHP y **NodeBrady**  en Node.js.
 
 ![AppOverview](images/PhippyOverview.png)
 
@@ -65,13 +65,13 @@ $ latestK8sVersion=$(az aks get-versions -l $location --query 'orchestrators[-1]
 $ az aks create -l $location -n $name -g $rg --generate-ssh-keys -k $latestK8sVersion
 ~~~
 
-Una vez creado, el proceso puede tomar aproximadamente 10 min, se deberán obtener las credenciales para interactuar con el cluster de AKS.
+Una vez creado, el proceso puede tomar aproximadamente 10 min, se deberán obtener las credenciales para interactuar con el clúster de AKS.
 
 ~~~
 $ az aks get-credentials -n $name -g $rg
 ~~~
 
-Vamos a configurar tiller para Helm. Tiller correrá dentro nuestro cluster de Kubernetes, y aadministrará la instalaciones de los charts.
+Vamos a configurar tiller para Helm. Tiller correrá dentro nuestro clúster de Kubernetes, y aadministrará la instalaciones de los charts.
 
 ~~~
 $ kubectl create serviceaccount tiller --namespace kube-system
@@ -99,12 +99,12 @@ $ kubectl create clusterrolebinding default-view --clusterrole=view --serviceacc
    Cada aplicación tiene su propia carpeta y la misma estructura dentro de ella:
 
    - **Archivos de la aplicación en sí**, dependiendo del lenguaje de programación: **Parrot** está en .NET Core, **CaptainKube** en GO, **Phippy** en PHP y **NodeBrady**  en Node.js.
-   - **Archivo DockerFile** es un script utilziado por Docker, compuesto de varios comandos (instrucciones) y argumentos listados sucesivamente para automáticamente realizar acciones en una imágen base para crear una nueva imágen de Docker al empaquetar la aplicación.
+   - **Archivo DockerFile** es un script utilizado por Docker, compuesto de varios comandos (instrucciones) y argumentos listados sucesivamente para automáticamente realizar acciones en una imagen base para crear una nueva imagen de Docker al empaquetar la aplicación.
    - **Carpeta charts/*** la cual contiene los archivos definiendo los Charts de Helm de la aplicación. Charts de Helm permiten definir, instalar y actualizar la aplicación en Kubernetes.
 
 # Ejercicio 3: Creando el Build Pipeline
 
-Crearemos el Azure Build Pipeline para la aplicación **Parrot** para que sea capaz de compilar/publicar su imágen de Docker y empaquetar/publicar su chart de Helm.
+Crearemos el Azure Build Pipeline para la aplicación **Parrot** para que sea capaz de compilar/publicar su imagen de Docker y empaquetar/publicar su chart de Helm.
 
 1. Es necesario crear una *Service Connection* entre Azure DevOps y nuestra suscripción de Azure. Para lo cual hay que navegar a las configuraciones de nuestro proyecto.
 
@@ -126,7 +126,7 @@ Crearemos el Azure Build Pipeline para la aplicación **Parrot** para que sea ca
 
 ![FileUploadCommit](images/FileUploadCommit.png)
 
-> El archivo *azure-build-pipeline.yml* contiene la definición del build el cual será utilizado en los siguientes pasos. Este archivo será el encargado de descargar la imágen base de docker, inyecta la aplicación *parrot*, luego instala Helm, empaqueta el chart de Helm y luego hace deploy del resultado de esa operación al Azure Container Registry (ACS).
+> El archivo *azure-build-pipeline.yml* contiene la definición del build el cual será utilizado en los siguientes pasos. Este archivo será el encargado de descargar la imagen base de Docker, inyecta la aplicación *parrot*, luego instala Helm, empaqueta el chart de Helm y finalmente hace deploy del resultado de esa operación al Azure Container Registry (ACS).
 
 6. En nuestro proyecto de Azure DevOps, ingresaremos al menú Pipelines --> Builds. Luego seleccionamos la opción "New pipeline".
 7. Construimos el pipeline en base a la siguiente animación:
@@ -140,7 +140,30 @@ Crearemos el Azure Build Pipeline para la aplicación **Parrot** para que sea ca
 
 ![BuildVariables](images/BuildVariables.png)
 
-9. Presionamos en el botón *Save & Queue*. Lo cual daría inicio a nuestro proceso de build.
+9. Presionamos en el botón *Save & Queue*. Lo cual iniciaría nuestro proceso de build.
 
 ![BuildResult](images/BuildResult.png)
+
+10. Una vez culminado exitosamente el proceso de build, los siguientes comandos ayudarán a verificar el resultado de esta. Nuevamente es necesario ejecutar estos comandos en [https://shell.azure.com/](https://shell.azure.com/).
+    1.  Listamos el contenido de nuestro Azure Container Registry, `$acr` contiene dicho valor:
+ 
+        ~~~
+        $ az acr repository list -n $acr
+        ~~~
+
+    2. Lista todos los Helm Charts del ACR
+
+        ~~~
+        $ az acr helm list -n $acr
+        ~~~
+
+    3. Muestra los detalles de un Chart Helm específico desde su ACR, reemplazar el valor de `chart-name` por el nombre del Chart a buscar
+
+       ~~~
+       $ az acr helm show chart-name -n $acr
+       ~~~
+
+![ResultadoBuild](images/ResultadoBuild.png)
 </div>
+
+https://cloudblogs.microsoft.com/opensource/2018/11/27/tutorial-azure-devops-setup-cicd-pipeline-kubernetes-docker-helm/
