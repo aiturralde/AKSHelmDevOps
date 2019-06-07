@@ -6,8 +6,10 @@ Tabla de Contenidos
 - [Ejercicio 1: Creando un servicio de Azure Kubernetes Services y Azure Container Registry](#ejercicio-1-creando-un-servicio-de-azure-kubernetes-services-y-azure-container-registry)
   - [Creación de un Container Registry](#creaci%C3%B3n-de-un-container-registry)
   - [Creación de un Azure Kubernetes Services](#creaci%C3%B3n-de-un-azure-kubernetes-services)
+  - [Roles y permisos para ACR](#roles-y-permisos-para-acr)
 - [Ejercicio 2: Importando el código](#ejercicio-2-importando-el-c%C3%B3digo)
 - [Ejercicio 3: Creando el Build Pipeline](#ejercicio-3-creando-el-build-pipeline)
+- [Ejercicio 4: Creando el Release Pipeline](#ejercicio-4-creando-el-release-pipeline)
 
 # Introducción
 
@@ -83,6 +85,16 @@ Finalmente definimos el namespace *phippyandfriends*, al cual posteriormente har
 ~~~
 $ kubectl create namespace phippyandfriends
 $ kubectl create clusterrolebinding default-view --clusterrole=view --serviceaccount=phippyandfriends:default
+~~~
+
+## Roles y permisos para ACR
+
+Ejecutaremos los siguientes comandos para permitir que AKS tenga privilegios de *pull* sobre ACR.
+
+~~~
+$ CLIENT_ID=$(az aks show -g $rg -n $name --query "servicePrincipalProfile.clientId" -o tsv)
+$ ACR_ID=$(az acr show -n $acr -g $rg --query "id" -o tsv)
+$ az role assignment create --assignee $CLIENT_ID --role acrpull --scope $ACR_ID
 ~~~
 
 # Ejercicio 2: Importando el código
@@ -164,4 +176,92 @@ Crearemos el Azure Build Pipeline para la aplicación **Parrot** para que sea ca
        ~~~
 
 ![ResultadoBuild](images/ResultadoBuild.png)
+
+# Ejercicio 4: Creando el Release Pipeline
+
+Una vez completado el Build, ahora llego el momento de poder hacer liberación de nuestra aplicación en Azure Kubernetes Services (AKS).
+
+1. En el Portal de Azure, navegamos a nuestro *Azure Container Registry*, dentro de la opción *Settings*, seleccionamos *Access Keys* y habilitamos la opción *Admin User*. Esto nos entregará un usuario y password las cuales usaremos en el futuro.
+
+![PasswordACR](images/PasswordACR.png)
+
+2. En Azure DevOps navegamos a *Pipelines* --> *Release* y finalmente presionamos en *New Pipeline*.
+
+![NewReleasePipeline](images/NewReleasePipeline.png)
+
+3. En el panel que aparecerá a la derecha de su pantalla, seleccionamos la opción de *Empty Job*.
+
+![ReleaseEmptyJob](images/ReleaseEmptyJob.png)
+
+4. Construimos el release pipeline en base a la siguiente animación:
+
+![NewReleaseGif](images/NewRelease.gif)
+
+5. A continuación deberemos definir las propiedades para los objetos ingresados en el punto anterior. 
+   * Helm tool installer 
+      - Display name:  `Install Helm`
+      - Helm Version Spec: `2.13.0`
+      - Check for latest version of Helm: `false`
+   * Package and Deploy Helm Charts
+      - Display name: `helm init`
+      - Connection Type: `Azure Resource Manager`
+      - Azure Subscripcion: Se debera seleccionar el nombre de la conexión creada en el punto 3 del Ejercicio 3
+      - Resource Group: Se indicará el grupo de recurso donde tenemos nuestro cluster de AKS
+      - Kubernetes Cluster: Se seleccionará el AKS donde se hará el deployment
+      - Namespace: `phippyandfriends`
+      - Command: `init`
+      - Upgrade Tiller: `true`
+      - Arguments: `--service-account tiller --force-upgrade`
+    * Bash
+      - Display Name: `helm repo add`
+      - Type: `Inline`
+      - Script: 
+         ~~~
+         helm repo add $(registryName) https://$(registryName).azurecr.io/helm/v1/repo --username $(registryLogin) --password $(registryPassword)
+         ~~~
+   * Package and Deploy Helm Charts
+      - Display name: `helm upgrade`
+      - Azure Subscripcion: Se debera seleccionar el nombre de la conexión creada en el punto 3 del Ejercicio 3
+      - Resource Group: Se indicará el grupo de recurso donde tenemos nuestro cluster de AKS
+      - Kubernetes Cluster: Se seleccionará el AKS donde se hará el deployment
+      - Namespace: `phippyandfriends`
+      - Command: `upgrade`
+      - Chart Type: `Name`
+      - Chart Name: `$(registryName)/$(projectName)`
+      - Release name: `$(projectName)`      
+      - Install if release not present: `true`
+      - Wait: `true`
+      - Arguments:            
+         ~~~   
+         --version $(build.buildId) --set image.repository=$(registryName).azurecr.io/$(projectName) --set image.tag=$(build.buildId) --set ingress.enabled=false
+         ~~~
+
+6. Navegamos a la opción *Variables* y definimos los siguientes parámetros:
+   * projectName: `parrot`
+   * registryName: el nombre de nuestro ACR.
+   * registryLogin: Ingresamos el usuario obtenido en el punto 1 de este ejercicio.
+   * registryPassword: Ingresamos el password obtenido en el punto 1 de este ejercicio.
+
+![VariablesRelease](images/VariablesRelease.png)
+
+7. Finalmente, guardamos nuestro Release mediante el boton `Save` y finalmente hacemos una nueva liberación mediante el botón `Create Release`
+
+![ScheduleRelease](images/ScheduleRelease.png)
+
+8. Una vez culminado exitósamente el release pipeline, nuevamente ingresamos a [https://shell.azure.com/](https://shell.azure.com/) y ejecutaremos el comando:
+
+~~~
+kubectl get all -n phippyandfriends
+~~~
+
+![Kubectl](images/kubectl.png)
+
+9. Para ingresar al dashboard de Kubernetes, es necesario ejecutar los siguientes comandos en [https://shell.azure.com/](https://shell.azure.com/). Donde `$rg` es el nombre del grupo de recurso que contiene el AKS y `$name` es el cluster de AKS.
+
+~~~
+kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
+az aks browse --resource-group $rg --name $name
+~~~
+
+Felicitaciones! Ha concluído este laboratorio.
 </div>
